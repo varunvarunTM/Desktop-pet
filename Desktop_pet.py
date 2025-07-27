@@ -7,14 +7,16 @@ class pet():
         # create a window
         self.window = tk.Tk()
 
-        # Load GIF frames with error handling
+        # Load GIF frames with error handling and resizing
         try:
             frames = []
             frame_count = 0
             while True:
                 try:
-                    frame = tk.PhotoImage(file='dino-walk-unscreen.gif', format='gif -index %i' % frame_count)
-                    frames.append(frame)
+                    frame = tk.PhotoImage(file='dino right walk.gif', format='gif -index %i' % frame_count)
+                    # Resize frame to fit the window (adjust these dimensions as needed)
+                    resized_frame = frame.subsample(3, 3)  # Makes image 33% of original size
+                    frames.append(resized_frame)
                     frame_count += 1
                 except tk.TclError:
                     break
@@ -24,7 +26,9 @@ class pet():
             
             if len(frames) == 0:
                 # Fallback to loading the first frame only
-                self.walking_right = [tk.PhotoImage(file='dino-walk-unscreen.gif')]
+                original = tk.PhotoImage(file='dino right walk.gif')
+                resized = original.subsample(2, 2)  # Resize fallback too
+                self.walking_right = [resized]
                 
         except Exception as e:
             print(f"Error loading GIF: {e}")
@@ -45,9 +49,10 @@ class pet():
         # Create label
         self.label = tk.Label(self.window, bd=0, bg='black')
 
-        # Position variables
+        # Position variables - adjust window size to match resized image
         self.x = 0
         self.y = 0
+        # You may need to adjust these dimensions based on your resized image
         self.window.geometry('500x256+{x}+{y}'.format(x=str(self.x), y=str(self.y)))
 
         self.label.configure(image=self.img)
@@ -80,7 +85,8 @@ class pet():
             new_y = event.y_root - self.start_y
             self.x = new_x
             self.y = new_y
-            self.window.geometry('500x256+{x}+{y}'.format(x=str(self.x), y=str(self.y)))
+            # FIXED: Convert float coordinates to integers
+            self.window.geometry('500x256+{x}+{y}'.format(x=str(int(self.x)), y=str(int(self.y))))
 
     def stop_drag(self, event):
         """Called when mouse button is released"""
@@ -89,7 +95,7 @@ class pet():
     def update(self):
         # Only move automatically if not being dragged
         if not self.dragging:
-            self.x += 1
+            self.x += 0.5  # Slower movement speed
 
         # Advance frame if 50ms have passed
         if time.time() > self.timestamp + 0.05:
@@ -100,7 +106,8 @@ class pet():
 
         # Update window position only if not dragging
         if not self.dragging:
-            self.window.geometry('500x256+{x}+{y}'.format(x=str(self.x), y=str(self.y)))
+            # FIXED: Convert float coordinates to integers
+            self.window.geometry('500x256+{x}+{y}'.format(x=str(int(self.x)), y=str(int(self.y))))
         
         self.label.configure(image=self.img)
         self.label.pack()
