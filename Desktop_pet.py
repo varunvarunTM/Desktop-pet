@@ -28,6 +28,6 @@ class pet():
         self.window.mainloop()
 
     def update(self):
-        self.window.after(0, self.update)
+        self.window.after(10, self.update)
 
 pet()
